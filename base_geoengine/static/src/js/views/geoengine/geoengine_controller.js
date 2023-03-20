@@ -1,13 +1,10 @@
-/* eslint-disable */
-
 /* ---------------------------------------------------------
  * Odoo base_geoengine
  * Contributor Yannick Vaucher 2018 Camptocamp SA
- * Copyright 2021 Shurshilov Artem
  * License in __manifest__.py at root level of the module
  * ---------------------------------------------------------
  */
-odoo.define("base_geoengine.GeoengineController", function (require) {
+odoo.define('base_geoengine.GeoengineController', function (require) {
     "use strict";
 
     /**
@@ -16,17 +13,17 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
      * also, to render and bind all extra actions in the 'Sidebar'.
      */
 
-    var core = require("web.core");
-    var BasicController = require("web.BasicController");
-    var pyUtils = require("web.py_utils");
-    // Var Sidebar = require('web.Sidebar');
-    var DataExport = require("web.DataExport");
+    var core = require('web.core');
+    var BasicController = require('web.BasicController');
+    var pyUtils = require('web.py_utils');
+    var Sidebar = require('web.Sidebar');
+    var DataExport = require('web.DataExport');
 
     var _t = core._t;
 
     var GeoengineController = BasicController.extend({
         custom_events: _.extend({}, BasicController.prototype.custom_events, {
-            selection_changed: "_onSelectionChanged",
+            selection_changed: '_onSelectionChanged',
         }),
 
         /**
@@ -44,6 +41,7 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
             this.toolbarActions = params.toolbarActions || {};
             this.noLeaf = params.noLeaf;
             this.selectedRecords = params.selectedRecords || [];
+
         },
 
         // --------------------------------------------------------------------
@@ -67,7 +65,7 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
         getActiveDomain: function () {
             // TODO: this method should be synchronous...
             var self = this;
-            if (this.$("thead .o_list_record_selector input").prop("checked")) {
+            if (this.$('thead .o_list_record_selector input').prop('checked')) {
                 var searchView = this.getParent().searchview;
                 var searchData = searchView.build_search_data();
                 var userContext = this.getSession().user_context;
@@ -117,12 +115,10 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
          */
         renderSidebar: function ($node) {
             if (this.hasSidebar && !this.sidebar) {
-                var other = [
-                    {
-                        label: _t("Export"),
-                        callback: this._onExportData.bind(this),
-                    },
-                ];
+                var other = [{
+                    label: _t("Export"),
+                    callback: this._onExportData.bind(this),
+                }];
                 if (this.archiveEnabled) {
                     other.push({
                         label: _t("Archive"),
@@ -133,20 +129,18 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
                         callback: this._onToggleArchiveState.bind(this, false),
                     });
                 }
-                if (this.is_action_enabled("delete")) {
+                if (this.is_action_enabled('delete')) {
                     other.push({
-                        label: _t("Delete"),
+                        label: _t('Delete'),
                         callback: this._onDeleteSelectedRecords.bind(this),
                     });
                 }
                 this.sidebar = new Sidebar(this, {
-                    editable: this.is_action_enabled("edit"),
+                    editable: this.is_action_enabled('edit'),
                     env: {
-                        context: this.model
-                            .get(this.handle, {
-                                raw: true,
-                            })
-                            .getContext(),
+                        context: this.model.get(this.handle, {
+                            raw: true,
+                        }).getContext(),
                         activeIds: this.getSelectedIds(),
                         model: this.modelName,
                     },
@@ -168,9 +162,11 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
             if (options && options.keepSelection) {
                 // Filter out removed records from selection
                 var res_ids = this.model.get(this.handle).res_ids;
-                this.selectedRecords = _.filter(this.selectedRecords, function (id) {
-                    return _.contains(res_ids, self.model.get(id).res_id);
-                });
+                this.selectedRecords = _.filter(this.selectedRecords,
+                    function (id) {
+                        return _.contains(res_ids, self.model.get(id).res_id);
+                    }
+                );
             } else {
                 this.selectedRecords = [];
             }
@@ -214,20 +210,16 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
         _addRecord: function () {
             var self = this;
             this._disableButtons();
-            return this.renderer
-                .unselectRow()
-                .then(function () {
-                    return self.model.addDefaultRecord(self.handle, {
-                        position: self.editable,
-                    });
-                })
-                .then(function (recordID) {
-                    var state = self.model.get(self.handle);
-                    self.renderer.updateState(state, {});
-                    self.renderer.editRecord(recordID);
-                    self._updatePager();
-                })
-                .always(this._enableButtons.bind(this));
+            return this.renderer.unselectRow().then(function () {
+                return self.model.addDefaultRecord(self.handle, {
+                    position: self.editable,
+                });
+            }).then(function (recordID) {
+                var state = self.model.get(self.handle);
+                self.renderer.updateState(state, {});
+                self.renderer.editRecord(recordID);
+                self._updatePager();
+            }).always(this._enableButtons.bind(this));
         },
 
         /**
@@ -320,7 +312,10 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
         _onDeleteSelectedRecords: function () {
             this._deleteRecords(this.selectedRecords);
         },
+
     });
 
     return GeoengineController;
+
 });
+

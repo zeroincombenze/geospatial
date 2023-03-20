@@ -1,9 +1,10 @@
-odoo.define("web_view_google_map.GoogleMapModel", function (require) {
-    "use strict";
+odoo.define('web_view_google_map.MapModel', function (require) {
+    'use strict';
 
-    const BasicModel = require("web.BasicModel");
+    var BasicModel = require('web.BasicModel');
 
-    const GoogleMapModel = BasicModel.extend({
+    var MapModel = BasicModel.extend({
+
         /**
          * @override
          */
@@ -13,26 +14,31 @@ odoo.define("web_view_google_map.GoogleMapModel", function (require) {
             }
             return this._super.apply(this, arguments);
         },
+
         /**
          * @override
          */
         load: function (params) {
             this.defaultGroupedBy = params.groupBy;
-            params.groupedBy =
-                params.groupedBy && params.groupedBy.length
-                    ? params.groupedBy
-                    : this.defaultGroupedBy;
+            params.groupedBy = (params.groupedBy && params.groupedBy.length) ? params.groupedBy : this.defaultGroupedBy;
             return this._super(params);
         },
+
         /**
-         * Disable group by
+         * Ensures that there is no nested groups in Map (only the first grouping
+         * level is taken into account).
          *
          * @override
          */
-        _readGroup: function () {
-            return Promise.reject();
+        _readGroup: function (list) {
+            var self = this;
+            if (list.groupedBy.length > 1) {
+                list.groupedBy = [list.groupedBy[0]];
+            }
+            return this._super.apply(this, arguments);
         },
     });
 
-    return GoogleMapModel;
+    return MapModel;
+
 });

@@ -1,47 +1,48 @@
 # Copyright 2011-2012 Nicolas Bessi (Camptocamp SA)
 # Copyright 2016 Yannick Vaucher (Camptocamp SA)
-# Copyright 2021 Shurshilov Artem
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import logging
 from operator import attrgetter
 
-from odoo import _, fields
+from odoo import fields, _
 from odoo.tools import sql
 
-from .geo_db import create_geo_column
 from .geo_helper import geo_convertion_helper as convert
+from .geo_db import create_geo_column, create_geo_index
 
 logger = logging.getLogger(__name__)
 try:
-    import geojson
+    from shapely.geometry import shape
     from shapely.geometry import Point
     from shapely.geometry.base import BaseGeometry
     from shapely.wkb import loads as wkbloads
+    import geojson
 except ImportError:
-    logger.warning("Shapely or geojson are not available in the sys path")
+    logger.warning('Shapely or geojson are not available in the sys path')
 
 
 class GeoField(fields.Field):
-    """The field descriptor contains the field definition common to all
+    """ The field descriptor contains the field definition common to all
     specialized fields for geolocalization. Subclasses must define a type
     and a geo_type. The type is the name of the corresponding column type,
     the geo_type is the name of the corresponding type in the GIS system.
     """
 
     geo_type = None
-    srid = 3857
-    dim = 2
-    gist_index = True
 
     @property
     def column_format(self):
-        return "ST_GeomFromText(%s, {})".format(self.srid)
+        return "ST_GeomFromText(%%s, %s)" % (self.srid,)
 
     @property
     def column_type(self):
-        return ("geometry", "geometry")
+        return ('geometry', 'geometry')
 
-    _slots = {"dim": 2, "srid": 3857, "gist_index": True}
+    _slots = {
+        'dim': 2,
+        'srid': 3857,
+        'gist_index': True,
+    }
 
     def convert_to_column(self, value, record, values=None):
         """Convert value to database format
@@ -63,10 +64,10 @@ class GeoField(fields.Field):
         return val
 
     def convert_to_record(self, value, record):
-        """Value may be:
-        - a GeoJSON string when field onchange is triggered
-        - a geometry object hexcode from cache
-        - a unicode containing dict
+        """ Value may be:
+            - a GeoJSON string when field onchange is triggered
+            - a geometry object hexcode from cache
+            - a unicode containing dict
         """
         if not value:
             return False
@@ -87,13 +88,15 @@ class GeoField(fields.Field):
     #
 
     # properties used by get_description()
-    _description_dim = property(attrgetter("dim"))
-    _description_srid = property(attrgetter("srid"))
-    _description_gist_index = property(attrgetter("gist_index"))
+    _description_dim = property(attrgetter('dim'))
+    _description_srid = property(attrgetter('srid'))
+    _description_gist_index = property(attrgetter('gist_index'))
 
     @classmethod
     def load_geo(cls, wkb):
         """Load geometry into browse record after read was done"""
+        if isinstance(wkb, BaseGeometry):
+            return wkb
         return wkbloads(wkb, hex=True) if wkb else False
 
     def entry_to_shape(self, value, same_type=False):
@@ -101,58 +104,58 @@ class GeoField(fields.Field):
         shape = convert.value_to_shape(value)
         if same_type and not shape.is_empty:
             if shape.geom_type.lower() != self.geo_type.lower():
-                msg = _("Geo Value %s must be of the same type %s as fields")
-                raise TypeError(msg % (shape.geom_type.lower(), self.geo_type.lower()))
+                msg = _('Geo Value %s must be of the same type %s as fields')
+                raise TypeError(msg % (shape.geom_type.lower(),
+                                       self.geo_type.lower()))
         return shape
 
     def update_geo_db_column(self, model):
-        """Update the column type in the database."""
+        """Update the column type in the database.
+        """
         cr = model._cr
-        query = """SELECT srid, type, coord_dimension
+        query = ("""SELECT srid, type, coord_dimension
                  FROM geometry_columns
                  WHERE f_table_name = %s
-                 AND f_geometry_column = %s"""
+                 AND f_geometry_column = %s""")
         cr.execute(query, (model._table, self.name))
         check_data = cr.fetchone()
         if not check_data:
             raise TypeError(
                 "geometry_columns table seems to be corrupted."
-                " SRID check is not possible"
-            )
+                " SRID check is not possible")
         if check_data[0] != self.srid:
             raise TypeError(
                 "Reprojection of column is not implemented."
-                " We can not change srid %s to %s" % (self.srid, check_data[0])
-            )
+                " We can not change srid %s to %s" % (
+                    self.srid, check_data[0]))
         elif check_data[1] != self.geo_type:
             raise TypeError(
                 "Geo type modification is not implemented."
-                " We can not change type %s to %s" % (check_data[1], self.geo_type)
-            )
+                " We can not change type %s to %s" % (
+                    check_data[1], self.geo_type))
         elif check_data[2] != self.dim:
             raise TypeError(
                 "Geo dimention modification is not implemented."
-                " We can not change dimention %s to %s" % (check_data[2], self.dim)
-            )
+                " We can not change dimention %s to %s" % (
+                    check_data[2], self.dim))
         if self.gist_index:
             cr.execute(
                 "SELECT indexname FROM pg_indexes WHERE indexname = %s",
-                (self._postgis_index_name(model._table, self.name),),
-            )
+                (self._postgis_index_name(model._table, self.name),))
             index = cr.fetchone()
             if index:
                 return True
-            self._create_index(cr, model._table, self.name)
+            create_geo_index(cr, model._table, self.name)
         return True
 
     def update_db_column(self, model, column):
-        """Create/update the column corresponding to ``self``.
+        """ Create/update the column corresponding to ``self``.
 
-        For creation of geo column
+            For creation of geo column
 
-        :param model: an instance of the field's model
-        :param column: the column's configuration (dict)
-                       if it exists, or ``None``
+            :param model: an instance of the field's model
+            :param column: the column's configuration (dict)
+                           if it exists, or ``None``
         """
         # the column does not exist, create it
 
@@ -164,35 +167,39 @@ class GeoField(fields.Field):
                 self.geo_type,
                 self.srid,
                 self.dim,
-                self.string,
-            )
+                self.string)
             return
 
-        if column["udt_name"] == self.column_type[0]:
+        if column['udt_name'] == self.column_type[0]:
             return
 
         self.update_geo_db_column(model)
 
-        if column["udt_name"] in self.column_cast_from:
-            sql.convert_column(model._cr, model._table, self.name, self.column_type[1])
+        if column['udt_name'] in self.column_cast_from:
+            sql.convert_column(
+                model._cr, model._table, self.name, self.column_type[1])
         else:
-            newname = (self.name + "_moved{}").format
+            newname = (self.name + '_moved{}').format
             i = 0
-            while sql.column_exists(model._cr, model._table, newname(i)):
+            while sql.column_exists(
+                model._cr, model._table, newname(i)
+            ):
                 i += 1
-            if column["is_nullable"] == "NO":
+            if column['is_nullable'] == 'NO':
                 sql.drop_not_null(model._cr, model._table, self.name)
             sql.rename_column(model._cr, model._table, self.name, newname(i))
             sql.create_column(
-                model._cr, model._table, self.name, self.column_type[1], self.string
-            )
+                model._cr,
+                model._table,
+                self.name,
+                self.column_type[1],
+                self.string)
 
 
 class GeoLine(GeoField):
     """Field for POSTGIS geometry Line type"""
-
-    type = "geo_line"
-    geo_type = "LINESTRING"
+    type = 'geo_line'
+    geo_type = 'LINESTRING'
 
     @classmethod
     def from_points(cls, cr, point1, point2, srid=None):
@@ -211,67 +218,90 @@ class GeoLine(GeoField):
                 ST_GeomFromText(%(wkt2)s, %(srid)s)
             )
         """
-        cr.execute(
-            sql,
-            {
-                "wkt1": point1.wkt,
-                "wkt2": point2.wkt,
-                "srid": srid or cls._slots["srid"],
-            },
-        )
+        cr.execute(sql, {
+            'wkt1': point1.wkt,
+            'wkt2': point2.wkt,
+            'srid': srid or cls._slots['srid'],
+        })
         res = cr.fetchone()
         return cls.load_geo(res[0])
 
 
 class GeoPoint(GeoField):
     """Field for POSTGIS geometry Point type"""
-
-    type = "geo_point"
-    geo_type = "POINT"
+    type = 'geo_point'
+    geo_type = 'POINT'
 
     @classmethod
     def from_latlon(cls, cr, latitude, longitude):
-        """Convert a (latitude, longitude) into an UTM coordinate Point:"""
+        """  Convert a (latitude, longitude) into an UTM coordinate Point:
+        """
         pt = Point(longitude, latitude)
-        cr.execute(
-            """
+        cr.execute("""
             SELECT
                 ST_Transform(
                     ST_GeomFromText(%(wkt)s, 4326),
                     %(srid)s)
-        """,
-            {"wkt": pt.wkt, "srid": cls._slots["srid"]},
-        )
+        """, {'wkt': pt.wkt,
+              'srid': cls._slots['srid']})
         res = cr.fetchone()
         return cls.load_geo(res[0])
+
+    @classmethod
+    def to_latlon(cls, cr, geopoint):
+        """  Convert a UTM coordinate point to (latitude, longitude):
+        """
+        # Line to execute to retrieve longitude, latitude
+        # from UTM in postgres command line:
+        #  SELECT ST_X(geom), ST_Y(geom)
+        #  FROM (SELECT ST_TRANSFORM(ST_SetSRID(
+        #      ST_MakePoint(601179.61612, 6399375,681364), 900913), 4326) as geom) g;
+        if isinstance(geopoint, BaseGeometry):
+            geo_point_instance = geopoint
+        else:
+            geo_point_instance = shape(geojson.loads(geopoint))
+        params = {
+            'coord_x': geo_point_instance.x,
+            'coord_y': geo_point_instance.y,
+            'srid': cls._slots['srid'],
+        }
+        cr.execute("""
+                    SELECT
+                        ST_TRANSFORM(
+                            ST_SetSRID(
+                                ST_MakePoint(
+                                        %(coord_x)s, %(coord_y)s
+                                            ),
+                                        %(srid)s
+                                      ), 4326)""", params)
+
+        res = cr.fetchone()
+        point_latlon = cls.load_geo(res[0])
+        return point_latlon.x, point_latlon.y
 
 
 class GeoPolygon(GeoField):
     """Field for POSTGIS geometry Polygon type"""
-
-    type = "geo_polygon"
-    geo_type = "POLYGON"
+    type = 'geo_polygon'
+    geo_type = 'POLYGON'
 
 
 class GeoMultiLine(GeoField):
     """Field for POSTGIS geometry MultiLine type"""
-
-    type = "geo_multi_line"
-    geo_type = "MULTILINESTRING"
+    type = 'geo_multi_line'
+    geo_type = 'MULTILINESTRING'
 
 
 class GeoMultiPoint(GeoField):
     """Field for POSTGIS geometry MultiPoint type"""
-
-    type = "geo_multi_point"
-    geo_type = "MULTIPOINT"
+    type = 'geo_multi_point'
+    geo_type = 'MULTIPOINT'
 
 
 class GeoMultiPolygon(GeoField):
     """Field for POSTGIS geometry MultiPolygon type"""
-
-    type = "geo_multi_polygon"
-    geo_type = "MULTIPOLYGON"
+    type = 'geo_multi_polygon'
+    geo_type = 'MULTIPOLYGON'
 
 
 fields.GeoLine = GeoLine

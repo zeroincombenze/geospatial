@@ -14,13 +14,13 @@ Geospatial support for Odoo
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fgeospatial-lightgray.png?logo=github
-    :target: https://github.com/OCA/geospatial/tree/14.0/base_geoengine
+    :target: https://github.com/OCA/geospatial/tree/12.0/base_geoengine
     :alt: OCA/geospatial
 .. |badge4| image:: https://img.shields.io/badge/weblate-Translate%20me-F47D42.png
-    :target: https://translation.odoo-community.org/projects/geospatial-14-0/geospatial-14-0-base_geoengine
+    :target: https://translation.odoo-community.org/projects/geospatial-12-0/geospatial-12-0-base_geoengine
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runbot-Try%20me-875A7B.png
-    :target: https://runbot.odoo-community.org/runbot/115/14.0
+    :target: https://runbot.odoo-community.org/runbot/115/12.0
     :alt: Try me on Runbot
 
 |badge1| |badge2| |badge3| |badge4| |badge5| 
@@ -54,6 +54,28 @@ for a complete documentation please refer to the `public documenation <http://oc
 Usage
 =====
 
+Widget
+======
+
+The widget can be used on geometry fields::
+
+  <record id="some_model_form_view" model="ir.ui.view">
+    <field name="name">Some form view</field>
+    <field name="model">some.model</field>
+    <field name="arch" type="xml">
+      <form>
+      ...
+        <field name="geom1" widget="geo_edit_map" options="{'add_layer_fields': ['geom2']}"/>
+        <field name="geom2" invisible="1"/>
+      ...
+      </form>
+    </field>
+  </record>
+
+
+Options can contain other geometry fields to display them on the same map
+as a readonly layer.
+
 Important changes in version 11
 ===============================
 
@@ -86,7 +108,7 @@ Bug Tracker
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/geospatial/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us smashing it by providing a detailed and welcomed
-`feedback <https://github.com/OCA/geospatial/issues/new?body=module:%20base_geoengine%0Aversion:%2014.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OCA/geospatial/issues/new?body=module:%20base_geoengine%0Aversion:%2012.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -102,15 +124,24 @@ Authors
 Contributors
 ~~~~~~~~~~~~
 
-* Alexandre Fayolle <alexandre.fayolle@camptocamp.com>
-* Frederic Junod <frederic.junod@camptocamp.com>
-* Guewen Baconnier <guewen.baconnier@camptocamp.com>
-* Laurent Mignon <laurent.mignon@acsone.eu>
 * Nicolas Bessi <nicolas.bessi@camptocamp.com>
-* Sandy Carter <sandy.carter@savoirfairelinux.com>
-* Vincent Renaville <vincent.renaville@camptocamp.com>
+* Frederic Junod <frederic.junod@camptocamp.com>
 * Yannick Vaucher <yannick.vaucher@camptocamp.com>
+* Sandy Carter <sandy.carter@savoirfairelinux.com>
+* Laurent Mignon <laurent.mignon@acsone.eu>
+* Jonathan Nemry <jonathan.nemry@acsone.eu>
+* David Lasley <dave@dlasley.net>
+* Daniel Reis <dgreis@sapo.pt>
+* Matthieu Dietrich <matthieu.dietrich@camptocamp.com>
+* Alan Ramos <alan.ramos@jarsa.com.mx>
+* Damien Crier <damien.crier@camptocamp.com>
+* Cyril Gaudin <cyril.gaudin@camptocamp.com>
+* Pierre Verkest <pverkest@anybox.fr>
 * Benjamin Willig <benjamin.willig@acsone.eu>
+* Devendra Kavthekar <dkatodoo@gmail.com>
+* Emanuel Cino <ecino@compassion.ch>
+* Thomas Nowicki <thomas.nowicki@camptocamp.com>
+* Alexandre Saunier <alexandre.saunier@camptocamp.com>
 * Sandip Mangukiya <smangukiya@opensourceintegrators.com>
 
 Maintainers
@@ -126,6 +157,6 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
-This module is part of the `OCA/geospatial <https://github.com/OCA/geospatial/tree/14.0/base_geoengine>`_ project on GitHub.
+This module is part of the `OCA/geospatial <https://github.com/OCA/geospatial/tree/12.0/base_geoengine>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
