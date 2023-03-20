@@ -1,10 +1,11 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
+
 /* ---------------------------------------------------------
  * Odoo base_geoengine
  * Author B.Binet Copyright Camptocamp SA
  * Contributor N. Bessi Copyright Camptocamp SA
  * Contributor Laurent Mignon 2015 Acsone SA/NV
- * Contributor Yannick Payot 2015-2016 Camptocamp SA
+ * Contributor Yannick Vaucher 2015-2016 Camptocamp SA
  * License in __manifest__.py at root level of the module
  * ---------------------------------------------------------
  */
@@ -15,7 +16,7 @@ odoo.define("base_geoengine.geoengine_widgets", function (require) {
     var AbstractField = require("web.AbstractField");
     var geoengine_common = require("base_geoengine.geoengine_common");
     var BackgroundLayers = require("base_geoengine.BackgroundLayers");
-    var registry = require("web.field_registry");
+    var field_registry = require("web.field_registry");
 
     var FieldGeoEngineEditMap = AbstractField.extend(geoengine_common.GeoengineMixin, {
         // eslint-disable-line max-len
@@ -591,7 +592,7 @@ odoo.define("base_geoengine.geoengine_widgets", function (require) {
         },
     });
 
-    registry.add("geo_edit_map", FieldGeoEngineEditMap);
+    field_registry.add("geo_edit_map", FieldGeoEngineEditMap);
     //    .add('geo_point_xy', FieldGeoPointXY)
     //    .add('geo_point_xy', FieldGeoPointXYReadonly)
     //    .add('geo_rect', FieldGeoRect)

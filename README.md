@@ -1,7 +1,11 @@
 
 [![Runboat](https://img.shields.io/badge/runboat-Try%20me-875A7B.png)](https://runboat.odoo-community.org/builds?repo=OCA/geospatial&target_branch=14.0)
+<<<<<<< HEAD
 [![Pre-commit Status](https://github.com/OCA/geospatial/actions/workflows/pre-commit.yml/badge.svg?branch=14.0)](https://github.com/OCA/geospatial/actions/workflows/pre-commit.yml?query=branch%3A14.0)
 [![Build Status](https://github.com/OCA/geospatial/actions/workflows/test.yml/badge.svg?branch=14.0)](https://github.com/OCA/geospatial/actions/workflows/test.yml?query=branch%3A14.0)
+=======
+[![Build Status](https://travis-ci.com/OCA/geospatial.svg?branch=14.0)](https://travis-ci.com/OCA/geospatial)
+>>>>>>> 05704c09af5ff31998550ce01af93dedc21f5c9f
 [![codecov](https://codecov.io/gh/OCA/geospatial/branch/14.0/graph/badge.svg)](https://codecov.io/gh/OCA/geospatial)
 [![Translation Status](https://translation.odoo-community.org/widgets/geospatial-14-0/-/svg-badge.svg)](https://translation.odoo-community.org/engage/geospatial-14-0/?utm_source=widget)
 
@@ -60,7 +64,10 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[base_geoengine](base_geoengine/) | 14.0.1.0.1 |  | Geospatial support for Odoo
+<<<<<<< HEAD
+[base_geoengine](base_geoengine/) | 14.0.1.0.2 |  | Geospatial support for Odoo
+=======
+>>>>>>> 05704c09af5ff31998550ce01af93dedc21f5c9f
 [base_google_map](base_google_map/) | 14.0.1.0.1 | [![gityopie](https://github.com/gityopie.png?size=30px)](https://github.com/gityopie) [![wolfhall](https://github.com/wolfhall.png?size=30px)](https://github.com/wolfhall) | View modes and widgets to integrate Google Maps in your UI
 [web_view_google_map](web_view_google_map/) | 14.0.1.0.0 | [![gityopie](https://github.com/gityopie.png?size=30px)](https://github.com/gityopie) [![wolfhall](https://github.com/wolfhall.png?size=30px)](https://github.com/wolfhall) | Add a Google Map view type to the Odoo web client
 [web_widget_google_marker_icon_picker](web_widget_google_marker_icon_picker/) | 14.0.1.1.0 | [![gityopie](https://github.com/gityopie.png?size=30px)](https://github.com/gityopie) [![wolfhall](https://github.com/wolfhall.png?size=30px)](https://github.com/wolfhall) | Google map widget allowing to set marker's color

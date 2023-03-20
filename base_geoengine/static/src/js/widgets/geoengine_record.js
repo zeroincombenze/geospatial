@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 odoo.define("base_geoengine.Record", function (require) {
     "use strict";
 
@@ -45,7 +47,7 @@ odoo.define("base_geoengine.Record", function (require) {
                 record: this.record,
                 widget: this,
                 user_context: session.user_context,
-                // Formats: formats,
+                formats: formats,
             };
             this.content = this.qweb.render("layer-box", qweb_context);
         },

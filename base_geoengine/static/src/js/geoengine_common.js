@@ -1,9 +1,11 @@
+/* eslint-disable */
+
 /* ---------------------------------------------------------
  * Odoo base_geoengine
  * Author B.Binet Copyright Camptocamp SA
  * Contributor N. Bessi Copyright Camptocamp SA
  * Contributor Laurent Mignon 2015 Acsone SA/NV
- * Contributor Yannick Payot 2015-2017 Camptocamp SA
+ * Contributor Yannick Vaucher 2015-2017 Camptocamp SA
  * License in __manifest__.py at root level of the module
  * ---------------------------------------------------------
  */
@@ -141,11 +143,9 @@ odoo.define("base_geoengine.BackgroundLayers", function (require) {
         },
 
         // To be overridden in geoengine extensions
-        /* eslint-disable no-unused-vars */
         handleCustomLayers: function (layer) {
             return [];
         },
-        /* eslint-enable */
     });
 
     return BackgroundLayers;

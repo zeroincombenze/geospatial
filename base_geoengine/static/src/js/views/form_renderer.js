@@ -1,4 +1,5 @@
-/* eslint-disable no-unused-vars */
+/* eslint-disable */
+
 odoo.define("base_geoengine.form_renderer", function (require) {
     "use strict";
 
@@ -9,6 +10,7 @@ odoo.define("base_geoengine.form_renderer", function (require) {
         // Add the TabListener to geo_type widget so that _renderMap is called
         // when clicking on the new tab
         _updateView: function ($newContent) {
+            var self = this;
             this._super.apply(this, arguments);
             _.each(this.allFieldWidgets[this.state.id], function (widget) {
                 if (widget.field.geo_type) {

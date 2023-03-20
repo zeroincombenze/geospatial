@@ -8,7 +8,10 @@ setuptools.setup(
     description="Meta package for oca-geospatial Odoo addons",
     version=version,
     install_requires=[
+<<<<<<< HEAD
         'odoo14-addon-base_geoengine',
+=======
+>>>>>>> 05704c09af5ff31998550ce01af93dedc21f5c9f
         'odoo14-addon-base_google_map',
         'odoo14-addon-web_view_google_map',
         'odoo14-addon-web_widget_google_marker_icon_picker',

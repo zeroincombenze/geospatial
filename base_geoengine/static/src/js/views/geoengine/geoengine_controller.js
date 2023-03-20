@@ -1,6 +1,9 @@
+/* eslint-disable */
+
 /* ---------------------------------------------------------
  * Odoo base_geoengine
- * Contributor Yannick Payot 2018 Camptocamp SA
+ * Contributor Yannick Vaucher 2018 Camptocamp SA
+ * Copyright 2021 Shurshilov Artem
  * License in __manifest__.py at root level of the module
  * ---------------------------------------------------------
  */
@@ -16,7 +19,7 @@ odoo.define("base_geoengine.GeoengineController", function (require) {
     var core = require("web.core");
     var BasicController = require("web.BasicController");
     var pyUtils = require("web.py_utils");
-    var Sidebar = require("web.Sidebar");
+    // Var Sidebar = require('web.Sidebar');
     var DataExport = require("web.DataExport");
 
     var _t = core._t;

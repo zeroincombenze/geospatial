@@ -1,4 +1,5 @@
-/* eslint-disable no-unused-vars, no-empty-function, valid-jsdoc */
+/* eslint-disable */
+
 /* ---------------------------------------------------------
  * Odoo base_geoengine
  * Author Benjamin Willig 2017 Acsone SA/NV

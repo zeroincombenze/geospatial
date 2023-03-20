@@ -1,5 +1,5 @@
 # Copyright 2011-2012 Nicolas Bessi (Camptocamp SA)
-# Copyright 2023 Yannick Payot (Camptocamp SA)
+# Copyright 2021 Shurshilov Artem
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 from odoo import fields, models
 
@@ -16,15 +16,6 @@ GEO_TYPES = [
     ("geo_line", "geo_line"),
     ("geo_multi_line", "geo_multi_line"),
 ]
-
-GEO_TYPES_ONDELETE = {
-    "geo_polygon": "cascade",
-    "geo_multi_polygon": "cascade",
-    "geo_point": "cascade",
-    "geo_multi_point": "cascade",
-    "geo_line": "cascade",
-    "geo_multi_line": "cascade",
-}
 
 POSTGIS_GEO_TYPES = [
     ("POINT", "POINT"),
@@ -47,5 +38,12 @@ class IrModelField(models.Model):
     gist_index = fields.Boolean("Create gist index")
     ttype = fields.Selection(
         selection_add=GEO_TYPES,
-        ondelete=GEO_TYPES_ONDELETE,
+        ondelete={
+            "geo_polygon": "cascade",
+            "geo_multi_polygon": "cascade",
+            "geo_point": "cascade",
+            "geo_multi_point": "cascade",
+            "geo_line": "cascade",
+            "geo_multi_line": "cascade",
+        },
     )
